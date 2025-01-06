@@ -73,6 +73,30 @@ class Professor:
         print('-' * 30)
 
 
+fake = Faker()
+num_professores = int(input("Quantos professores você deseja cadastrar? "))
+professores = []
+
+for i in range(num_professores):
+    nome = fake.name()
+    matricula = fake.unique.random_int(min=10000, max=99999)
+    data_nascimento = fake.date_of_birth(
+        minimum_age=22, maximum_age=65).strftime('%d/%m/%Y')
+    sexo = fake.random_element(elements=('Masculino', 'Feminino'))
+    endereco = fake.address().replace("\n", ", ")
+    telefone = fake.phone_number()
+    email = fake.email()
+    disciplina = fake.random_element(
+        elements=('Matemática', 'Física', 'Química', 'Biologia', 'História'))
+
+    professor = Professor(nome, matricula, data_nascimento,
+                          sexo, endereco, telefone, email, disciplina)
+    professores.append(professor)
+
+for professor in professores:
+    professor.exibir_informacoes()
+
+
 class Disciplina:
     def __init__(self, nome, codigo, carga_horaria, professor=None):
         self.nome = nome
