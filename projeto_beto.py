@@ -1,7 +1,3 @@
-from faker import Faker
-import random
-
-
 class Aluno:
     def __init__(self, nome, matricula, data_nascimento, sexo, endereco, telefone, email):
         self.nome = nome
@@ -23,34 +19,7 @@ class Aluno:
         print('-' * 30)
 
 
-def gerar_alunos(n):
-    fake = Faker()
-    alunos = []
-
-    for _ in range(n):
-        nome = fake.name()
-        matricula = fake.unique.random_int(min=1000, max=9999)
-        data_nascimento = fake.date_of_birth(minimum_age=18, maximum_age=25)
-        sexo = random.choice(['Masculino', 'Feminino'])
-        endereco = fake.address().replace('\n', ', ')
-        telefone = fake.phone_number()
-        email = fake.ascii_email()
-
-        aluno = Aluno(nome, matricula, data_nascimento,
-                      sexo, endereco, telefone, email)
-        alunos.append(aluno)
-
-    return alunos
-
-
-lista_de_alunos = gerar_alunos(5)
-
-for aluno in lista_de_alunos:
-    aluno.exibir_informacoes()
-
-
 class Professor:
-
     def __init__(self, nome, matricula, data_nascimento, sexo, endereco, telefone, email, disciplina):
         self.nome = nome
         self.matricula = matricula
@@ -71,30 +40,6 @@ class Professor:
         print(f"Email: {self.email}")
         print(f"Disciplina: {self.disciplina}")
         print('-' * 30)
-
-
-fake = Faker()
-num_professores = int(input("Quantos professores você deseja cadastrar? "))
-professores = []
-
-for i in range(num_professores):
-    nome = fake.name()
-    matricula = fake.unique.random_int(min=10000, max=99999)
-    data_nascimento = fake.date_of_birth(
-        minimum_age=22, maximum_age=65).strftime('%d/%m/%Y')
-    sexo = fake.random_element(elements=('Masculino', 'Feminino'))
-    endereco = fake.address().replace("\n", ", ")
-    telefone = fake.phone_number()
-    email = fake.email()
-    disciplina = fake.random_element(
-        elements=('Matemática', 'Física', 'Química', 'Biologia', 'História'))
-
-    professor = Professor(nome, matricula, data_nascimento,
-                          sexo, endereco, telefone, email, disciplina)
-    professores.append(professor)
-
-for professor in professores:
-    professor.exibir_informacoes()
 
 
 class Disciplina:
@@ -121,7 +66,7 @@ class Disciplina:
         print(f"Código: {self.codigo}")
         print(f"Carga Horária: {self.carga_horaria} horas")
         print(f"Professor: {
-              self.professor.nome if self.professor else 'Nenhum professor alocado'}")
+              self.professor.nome if self.professor else 'Nenhum professor alocado\n'}")
         print('-' * 30)
 
 
@@ -138,18 +83,124 @@ class Turma:
         print(f"Disciplina {disciplina.nome} alocada à turma {
               self.nome} com sucesso.")
 
-    def consultar_disciplina(self):
-        return self.disciplina
-
     def exibir_informacoes(self):
         print(f"Nome da Turma: {self.nome}")
         print(f"Código: {self.codigo}")
         print(f"Disciplina: {self.disciplina.nome}")
         print(f"Professor: {self.professor.nome}")
         print(f"Alunos ( Matrículas): {', '.join(
-            self.alunos) if self.alunos else 'Nenhum aluno cadastrado'}")
+            [aluno.matricula for aluno in self.alunos]) if self.alunos else 'Nenhum aluno cadastrado\n'}")
         print('-' * 30)
 
 
-def consultar_alunos_matriculados(turma):
-    return turma.alunos
+def menu():
+    alunos = []
+    professores = []
+    turmas = []
+
+    while True:
+        print("\nMenu:")
+        print("1. Cadastrar Aluno")
+        print("2. Cadastrar Professor")
+        print("3. Alocar Disciplina a Professor")
+        print("4. Cadastrar Turma")
+        print("5. Consultar Alunos Cadastrados")
+        print("6. Consultar Professores Cadastrados")
+        print("7. Consultar Turmas Cadastradas")
+        print("0. Sair")
+
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == '1':
+            nome = input("Digite o nome do aluno: ")
+            matricula = input("Digite a matrícula do aluno: ")
+            data_nascimento = input(
+                "Digite a data de nascimento (dd/mm/aaaa): ")
+            sexo = input("Digite o sexo do aluno (Masculino/Feminino): ")
+            endereco = input("Digite o endereço do aluno: ")
+            telefone = input("Digite o telefone do aluno: ")
+            email = input("Digite o email do aluno: ")
+
+            aluno = Aluno(nome, matricula, data_nascimento,
+                          sexo, endereco, telefone, email)
+            alunos.append(aluno)
+            print("Aluno cadastrado com sucesso!")
+
+        elif opcao == '2':
+            nome = input("Digite o nome do professor: ")
+            matricula = input("Digite a matrícula do professor: ")
+            data_nascimento = input(
+                "Digite a data de nascimento (dd/mm/aaaa): ")
+            sexo = input("Digite o sexo do professor (Masculino/Feminino): ")
+            endereco = input("Digite o endereço do professor: ")
+            telefone = input("Digite o telefone do professor: ")
+            email = input("Digite o email do professor: ")
+            disciplina = input("Digite a disciplina que o professor leciona: ")
+
+            professor = Professor(
+                nome, matricula, data_nascimento, sexo, endereco, telefone, email, disciplina)
+            professores.append(professor)
+            print("Professor cadastrado com sucesso!\n")
+
+        elif opcao == '3':
+            if not professores:
+                print("Nenhum professor cadastrado!\n")
+                continue
+
+            nome_prof = input("Digite o nome do professor a ser alocado: ")
+            for professor in professores:
+                if professor.nome.lower() == nome_prof.lower():
+                    disciplina = input("Digite o nome da disciplina: ")
+                    codigo = input("Digite o código da disciplina: ")
+                    carga_horaria = input("Digite a carga horária: ")
+                    disc = Disciplina(disciplina, codigo, carga_horaria)
+                    disc.alocar_professor(professor)
+                    print("Disciplina alocada ao professor com sucesso!")
+                    break
+            else:
+                print("Professor não encontrado!\n")
+
+        elif opcao == '4':
+            if not professores:
+                print("Nenhum professor cadastrado!\n")
+                continue
+
+            nome_turma = input("Digite o nome da turma: ")
+            codigo_turma = input("Digite o código da turma: ")
+            disciplina = input("Digite a disciplina da turma: ")
+
+            professor_nome = input("Digite o nome do professor da turma: ")
+            for professor in professores:
+                if professor.nome.lower() == professor_nome.lower():
+                    turma = Turma(nome_turma, codigo_turma,
+                                  disciplina, professor)
+                    turmas.append(turma)
+                    print("Turma cadastrada com sucesso!\n")
+                    break
+            else:
+                print("Professor não encontrado!\n")
+
+        elif opcao == '5':
+            print("Alunos Cadastrados:")
+            for aluno in alunos:
+                aluno.exibir_informacoes()
+
+        elif opcao == '6':
+            print("Professores Cadastrados:")
+            for professor in professores:
+                professor.exibir_informacoes()
+
+        elif opcao == '7':
+            print("Turmas Cadastradas:")
+            for turma in turmas:
+                turma.exibir_informacoes()
+
+        elif opcao == '0':
+            print("Saindo do sistema...")
+            break
+
+        else:
+            print("Opção inválida! Por favor, escolha uma opção válida.\n")
+
+
+menu()
